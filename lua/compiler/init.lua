@@ -163,18 +163,18 @@ end
 
 
 M.setup = function(opts)
-	local build_bind = opts.keybinds and opts.keybinds.build or '<leader>bb'
-	local clean_bind = opts.keybinds and opts.keybinds.build or '<leader>bc'
-	local test_bind = opts.keybinds and opts.keybinds.build or '<leader>bt'
-	local report_bind = opts.keybinds and opts.keybinds.build or '<leader>br'
+	local build_bind = opts and opts.keybinds and opts.keybinds.build or '<leader>bb'
+	local clean_bind = opts and opts.keybinds and opts.keybinds.build or '<leader>bc'
+	local test_bind = opts and opts.keybinds and opts.keybinds.build or '<leader>bt'
+	local report_bind = opts and opts.keybinds and opts.keybinds.build or '<leader>br'
 	vim.keymap.set('n', build_bind, function()
-		execute('build')
+		execute('build', opts)
 	end)
 	vim.keymap.set('n', clean_bind, function()
-		execute('clean')
+		execute('clean', opts)
 	end)
 	vim.keymap.set('n', test_bind, function()
-		execute('test')
+		execute('test', opts)
 	end)
 	vim.keymap.set('n', report_bind, function()
 		open_report()
