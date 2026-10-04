@@ -1,6 +1,6 @@
 local M = {}
 
-local MANAGERS = {
+local COMPILERS = {
 	cargo = function(command)
 		if command == 'build' then
 			return { 'cargo', 'build' }
@@ -79,16 +79,19 @@ local echo_error = function(msg)
 end
 
 
-LAST_REPORT = ''
+LAST_REPORT = nil
 
-local open_report = function(cmd)
+local open_report = function()
+	if LAST_REPORT == nil then
+		return
+	end
 	vim.cmd("tabnew")
 	local buf = vim.api.nvim_get_current_buf()
 	vim.bo[buf].bufhidden = "wipe"
 
-	-- terminal buffer renders ANSI colors; it needs CRLF line endings
 	local chan = vim.api.nvim_open_term(buf, {})
-	vim.api.nvim_chan_send(chan, (LAST_REPORT:gsub('\r?\n', '\r\n')))
+	pcall(vim.api.nvim_buf_set_name, buf, 'compiler://' .. LAST_REPORT.title .. ' ' .. os.date('%H:%M:%S'))
+	vim.api.nvim_chan_send(chan, (LAST_REPORT.contents:gsub('\r?\n', '\r\n')))
 end
 
 local execute = function(cmd)
@@ -106,7 +109,7 @@ local execute = function(cmd)
 			title = cmd,
 		}
 
-		local manager = MANAGERS[manager_name];
+		local manager = COMPILERS[manager_name];
 		local cmd_to_run = manager(cmd)
 		if cmd_to_run == nil then
 			vim.api.nvim_echo({ { manager_name .. " does not support '" .. cmd .. "'.", "ErrorMsg" } }, true,
@@ -130,7 +133,10 @@ local execute = function(cmd)
 			text = table.concat(cmd_to_run, ' ') ..
 			    ' exited with code ' .. output.code .. ' and no output.\n'
 		end
-		LAST_REPORT = text
+		LAST_REPORT = {
+			contents = text,
+			title = cmd,
+		}
 
 		if output.code == 0 then
 			progress.status = 'success'
