@@ -94,7 +94,8 @@ local open_report = function()
 	vim.api.nvim_chan_send(chan, (LAST_REPORT.contents:gsub('\r?\n', '\r\n')))
 end
 
-local execute = function(cmd)
+local execute = function(cmd, opts)
+	local open_report_on_error = opts.report_on_error or true
 	local task = vim.async.run(function()
 		local manager_name = resolve_manager()
 		if manager_name == nil then
@@ -146,7 +147,9 @@ local execute = function(cmd)
 
 			vim.api.nvim_echo({ { MESSAGES[cmd].error, "ErrorMsg" } }, false, progress)
 
-			open_report()
+			if open_report_on_error then
+				open_report()
+			end
 		end
 	end)
 
