@@ -98,7 +98,7 @@ local execute = function(cmd)
 	local task = vim.async.run(function()
 		local manager_name = resolve_manager()
 		if manager_name == nil then
-			vim.api.nvim_echo({ { "No manager detected.", "ErrorMsg" } }, false, {})
+			vim.api.nvim_echo({ { "Unknown project type.", "ErrorMsg" } }, false, {})
 			return
 		end
 
